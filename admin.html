@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>stashme - Admin Dashboard</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="robots" content="noindex, nofollow">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600&display=swap');
+    
+    :root {
+      --primary-color: #0071e3;
+      --primary-hover: #0077ed;
+      --text-color: #1d1d1f;
+      --secondary-text: #86868b;
+      --background: #ffffff;
+      --secondary-bg: #f5f5f7;
+      --border-color: #d2d2d7;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --transition-speed: 0.3s;
+      --border-radius: 12px;
+      --container-width: 800px;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--background);
+      color: var(--text-color);
+      transition: background var(--transition-speed), color var(--transition-speed);
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    .site-header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 16px 0;
+      text-align: center;
+      box-shadow: 0 2px 8px var(--shadow-color);
+      position: relative;
+      z-index: 10;
+      animation: fadeInDown 0.6s ease-out;
+    }
+    
+    @keyframes fadeInDown {
+      from { transform: translateY(-10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .site-header h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 500;
+      letter-spacing: -0.5px;
+    }
+    
+    .container {
+      max-width: var(--container-width);
+      margin: 0 auto;
+      width: 100%;
+      padding: 0 20px;
+      box-sizing: border-box;
+    }
+    
+    .admin-panel {
+      background-color: var(--secondary-bg);
+      border-radius: var(--border-radius);
+      padding: 24px;
+      margin: 30px 0;
+      box-shadow: 0 2px 8px var(--shadow-color);
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .admin-panel h2 {
+      margin-top: 0;
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      font-weight: 500;
+      letter-spacing: -0.5px;
+    }
+    
+    .stats-container {
+      background-color: var(--background);
+      border-radius: var(--border-radius);
+      padding: 16px;
+      margin: 16px 0;
+      box-shadow: 0 2px 8px var(--shadow-color);
+    }
+    
+    .stats-container ul {
+      margin-bottom: 0;
+      padding-left: 20px;
+    }
+    
+    .stats-container li {
+      margin-bottom: 8px;
+    }
+    
+    .btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 8px 16px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+      margin-top: 15px;
+    }
+    
+    .btn:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 5px var(--shadow-color);
+      transition: all 0.2s ease;
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+    
+    .btn-danger {
+      background-color: #ff3b30;
+    }
+    
+    .btn-danger:hover {
+      background-color: #ff453a;
+    }
+    
+    .btn-secondary {
+      background-color: #86868b;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #96969b;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .footer {
+      margin-top: auto;
+      padding: 20px 0;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--secondary-text);
+    }
+    
+    /* Dark mode styles */
+    body.dark {
+      --primary-color: #2997ff;
+      --primary-hover: #3ba0ff;
+      --text-color: #f5f5f7;
+      --secondary-text: #a1a1a6;
+      --background: #000000;
+      --secondary-bg: #1d1d1f;
+      --border-color: #424245;
+      --shadow-color: rgba(0, 0, 0, 0.3);
+    }
+    
+    body.dark .site-header {
+      background-color: #1d1d1f;
+    }
+    
+    /* Responsive styles */
+    @media (max-width: 768px) {
+      .site-header h1 {
+        font-size: 1.8rem;
+      }
+      
+      .admin-panel {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1>stashme - Admin Dashboard</h1>
+    </div>
+  </header>
+  
+  <div class="container">
+    <div class="admin-panel">
+      <h2>Visitor Statistics</h2>
+      <p>This dashboard shows how many times your app has been opened and from which countries. All data is stored locally in the browser.</p>
+      
+      <div id="stats-container" class="stats-container">
+        <p>Loading statistics...</p>
+      </div>
+      
+      <div class="actions">
+        <button id="reset-stats-btn" class="btn btn-danger">Reset Statistics</button>
+        <button id="refresh-btn" class="btn">Refresh Data</button>
+        <button id="back-btn" class="btn btn-secondary">Back to App</button>
+      </div>
+    </div>
+  </div>
+  
+  <footer class="footer">
+    <div class="container">
+      <p>© 2023 stashme - Admin Dashboard</p>
+    </div>
+  </footer>
+
+  <script>
+    // Theme handling
+    function loadThemePreference() {
+      const savedTheme = localStorage.getItem('quickNotepadDarkMode');
+      if (savedTheme === 'true') {
+        document.body.classList.add('dark');
+      } else if (savedTheme === null && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // If no saved preference, check system preference
+        document.body.classList.add('dark');
+      }
+    }
+    
+    // Load theme on page load
+    loadThemePreference();
+    
+    // Display visitor statistics
+    function displayVisitorStats() {
+      const statsContainer = document.getElementById('stats-container');
+      if (!statsContainer) return;
+      
+      const visitorStats = JSON.parse(localStorage.getItem('visitorStats')) || {
+        totalVisits: 0,
+        countries: {}
+      };
+      
+      // Create HTML for stats
+      let statsHTML = `<p><strong>Total Visits:</strong> ${visitorStats.totalVisits}</p>`;
+      
+      if (Object.keys(visitorStats.countries).length > 0) {
+        statsHTML += '<p><strong>Visits by Country:</strong></p><ul>';
+        
+        // Sort countries by visit count (descending)
+        const sortedCountries = Object.entries(visitorStats.countries)
+          .sort((a, b) => b[1].visits - a[1].visits);
+        
+        sortedCountries.forEach(([code, data]) => {
+          statsHTML += `<li>${data.name}: ${data.visits} visit${data.visits !== 1 ? 's' : ''}</li>`;
+        });
+        
+        statsHTML += '</ul>';
+      } else {
+        statsHTML += '<p>No country data available yet.</p>';
+      }
+      
+      statsContainer.innerHTML = statsHTML;
+    }
+    
+    // Reset statistics
+    function resetStats() {
+      if (confirm('Are you sure you want to reset all visitor statistics?')) {
+        localStorage.removeItem('visitorStats');
+        sessionStorage.removeItem('visitTracked');
+        displayVisitorStats();
+        alert('Statistics have been reset.');
+      }
+    }
+    
+    // Add event listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      displayVisitorStats();
+      
+      // Reset button
+      const resetStatsBtn = document.getElementById('reset-stats-btn');
+      if (resetStatsBtn) {
+        resetStatsBtn.addEventListener('click', resetStats);
+      }
+      
+      // Refresh button
+      const refreshBtn = document.getElementById('refresh-btn');
+      if (refreshBtn) {
+        refreshBtn.addEventListener('click', displayVisitorStats);
+      }
+      
+      // Back button
+      const backBtn = document.getElementById('back-btn');
+      if (backBtn) {
+        backBtn.addEventListener('click', () => {
+          // Get the base URL path to handle GitHub Pages deployment
+          const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+          window.location.href = basePath + 'index.html';
+        });
+      }
+    });
+  </script>
+</body>
+</html>

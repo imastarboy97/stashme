@@ -4,6 +4,7 @@ const CACHE_NAME = 'quick-notepad-v1';
 const ASSETS = [
   './',
   './index.html',
+  './admin.html',
   './favicon.svg',
   './manifest.json'
 ];

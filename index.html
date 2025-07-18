@@ -241,6 +241,8 @@
       text-align: center;
     }
     
+    /* Admin access is available via ?admin=true parameter */
+    
     /* Dark mode styles */
     body.dark {
       --primary-color: #2997ff;
@@ -332,6 +334,68 @@
           });
       });
     }
+    
+    // Visitor tracking functionality
+    function trackVisitor() {
+      // Check if this visit was already tracked in this session
+      if (sessionStorage.getItem('visitTracked')) {
+        return;
+      }
+      
+      // Get visitor country information using ipapi.co (free service)
+      fetch('https://ipapi.co/json/')
+        .then(response => response.json())
+        .then(data => {
+          const country = data.country_name || 'Unknown';
+          const countryCode = data.country_code || 'XX';
+          
+          // Store visit data in localStorage
+          let visitorStats = JSON.parse(localStorage.getItem('visitorStats')) || {
+            totalVisits: 0,
+            countries: {}
+          };
+          
+          // Increment total visits
+          visitorStats.totalVisits++;
+          
+          // Update country count
+          if (!visitorStats.countries[countryCode]) {
+            visitorStats.countries[countryCode] = {
+              name: country,
+              visits: 0
+            };
+          }
+          visitorStats.countries[countryCode].visits++;
+          
+          // Save updated stats
+          localStorage.setItem('visitorStats', JSON.stringify(visitorStats));
+          
+          // Mark this visit as tracked for this session
+          sessionStorage.setItem('visitTracked', 'true');
+          
+          console.log(`Visit recorded from ${country}`);
+        })
+        .catch(error => {
+          console.error('Error tracking visitor:', error);
+        });
+    }
+    
+    // Function to check admin access
+    function checkAdminAccess() {
+      // Check if URL has admin parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('admin') && urlParams.get('admin') === 'true') {
+        // Get the base URL path to handle GitHub Pages deployment
+        const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+        window.location.href = basePath + 'admin.html';
+      }
+    }
+    
+    // Track visitor when page loads
+    window.addEventListener('load', () => {
+      trackVisitor();
+      checkAdminAccess();
+    });
     
     const notepad = document.getElementById('notepad');
     const wordCount = document.querySelector('.word-count');
@@ -439,7 +503,19 @@
         <li>100% private by design - no data is sent to any server</li>
       </ul>
       <p>Keyboard shortcuts: Ctrl+D/Cmd+D for dark mode, Ctrl+L/Cmd+L to clear</p>
-      <p class="copyright">© 2023 stashme</p>
+      
+      <!-- Admin access is available via ?admin=true parameter -->
+      
+      <p class="copyright">© 2023 stashme | <a href="#" id="admin-link" style="color: inherit; text-decoration: none;">Admin</a></p>
+      
+      <script>
+        // Set up admin link
+        document.getElementById('admin-link').addEventListener('click', function(e) {
+          e.preventDefault();
+          const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+          window.location.href = basePath + 'admin.html';
+        });
+      </script>
     </div>
   </footer>
 </body>
