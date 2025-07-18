@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>stashme - Quick Notepad</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="description" content="A lightweight in-browser notepad for quick notes with no server storage.">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0071e3">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600&display=swap');
+    
+    :root {
+      --primary-color: #0071e3;
+      --primary-hover: #0077ed;
+      --text-color: #1d1d1f;
+      --secondary-text: #86868b;
+      --background: #ffffff;
+      --secondary-bg: #f5f5f7;
+      --border-color: #d2d2d7;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --transition-speed: 0.3s;
+      --border-radius: 12px;
+      --container-width: 800px;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--background);
+      color: var(--text-color);
+      transition: background var(--transition-speed), color var(--transition-speed);
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    .site-header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 16px 0;
+      text-align: center;
+      box-shadow: 0 2px 8px var(--shadow-color);
+      position: relative;
+      z-index: 10;
+      animation: fadeInDown 0.6s ease-out;
+    }
+    
+    @keyframes fadeInDown {
+      from { transform: translateY(-10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .site-header h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 500;
+      letter-spacing: -0.5px;
+    }
+    
+    .container {
+      max-width: var(--container-width);
+      margin: 0 auto;
+      width: 100%;
+      padding: 0 20px;
+      box-sizing: border-box;
+    }
+    
+    textarea {
+      width: 100%;
+      flex-grow: 1;
+      border: none;
+      resize: none;
+      padding: 24px;
+      box-sizing: border-box;
+      font-family: inherit;
+      font-size: 1.1rem;
+      line-height: 1.5;
+      outline: none;
+      background-color: inherit;
+      color: inherit;
+      min-height: 200px;
+      border-radius: 0;
+      transition: all var(--transition-speed);
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background-color: var(--secondary-bg);
+      transition: background var(--transition-speed), color var(--transition-speed);
+      border-bottom: 1px solid var(--border-color);
+      animation: slideDown 0.4s ease-out;
+    }
+    
+    @keyframes slideDown {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    textarea:focus {
+      box-shadow: inset 0 0 0 2px var(--primary-color);
+    }
+    
+    .controls-left, .controls-right {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    
+    .btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 8px 16px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+    }
+    
+    .btn:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 5px var(--shadow-color);
+      transition: all 0.2s ease;
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+    
+    #theme-toggle {
+      background: transparent;
+      color: var(--text-color);
+      font-size: 1.2rem;
+      padding: 6px 10px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    #theme-toggle:hover {
+      background: rgba(0, 0, 0, 0.05);
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .word-count {
+      font-size: 0.95rem;
+      color: var(--secondary-text);
+      font-weight: 400;
+    }
+    
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+      color: var(--secondary-text);
+    }
+    
+    input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 36px;
+      height: 20px;
+      background: #e4e4e4;
+      border-radius: 20px;
+      position: relative;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+      vertical-align: middle;
+    }
+    
+    input[type="checkbox"]:checked {
+      background: var(--primary-color);
+    }
+    
+    input[type="checkbox"]:before {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      background: white;
+      transition: all var(--transition-speed);
+    }
+    
+    input[type="checkbox"]:checked:before {
+      left: 18px;
+    }
+    
+    .about-section {
+      padding: 40px 0;
+      background-color: var(--secondary-bg);
+      border-top: 1px solid var(--border-color);
+      font-size: 1rem;
+      line-height: 1.6;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+    
+    .about-section h3 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      font-weight: 500;
+      letter-spacing: -0.5px;
+    }
+    
+    .about-section ul {
+      padding-left: 20px;
+      margin-bottom: 24px;
+    }
+    
+    .about-section li {
+      margin-bottom: 8px;
+    }
+    
+    .about-section .copyright {
+      margin-top: 32px;
+      font-size: 0.85rem;
+      color: var(--secondary-text);
+      text-align: center;
+    }
+    
+    /* Dark mode styles */
+    body.dark {
+      --primary-color: #2997ff;
+      --primary-hover: #3ba0ff;
+      --text-color: #f5f5f7;
+      --secondary-text: #a1a1a6;
+      --background: #000000;
+      --secondary-bg: #1d1d1f;
+      --border-color: #424245;
+      --shadow-color: rgba(0, 0, 0, 0.3);
+    }
+    
+    body.dark .site-header {
+      background-color: #1d1d1f;
+    }
+    
+    body.dark #theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    body.dark input[type="checkbox"] {
+      background: #424245;
+    }
+    
+    /* Responsive styles */
+    @media (max-width: 768px) {
+      .site-header h1 {
+        font-size: 1.8rem;
+      }
+      
+      textarea {
+        padding: 16px;
+      }
+      
+      .controls {
+        padding: 12px 16px;
+      }
+      
+      .about-section {
+        padding: 30px 0;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .controls-left, .controls-right {
+        gap: 10px;
+      }
+      
+      .btn {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1>stashme</h1>
+    </div>
+  </header>
+  <div class="controls">
+    <div class="container">
+      <div class="controls-left">
+        <button class="btn" id="clear-btn">Clear</button>
+        <div class="checkbox-container">
+          <input type="checkbox" id="autosave-checkbox">
+          <label for="autosave-checkbox">Auto-save</label>
+        </div>
+      </div>
+      <div class="controls-right">
+        <div class="word-count">0 words</div>
+        <button id="theme-toggle"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></button>
+      </div>
+    </div>
+  </div>
+  <textarea id="notepad" autofocus placeholder="Jot your ideas!"></textarea>
+
+  <script>
+    // Register service worker for offline functionality
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(registration => {
+            console.log('ServiceWorker registration successful');
+          })
+          .catch(error => {
+            console.log('ServiceWorker registration failed:', error);
+          });
+      });
+    }
+    
+    const notepad = document.getElementById('notepad');
+    const wordCount = document.querySelector('.word-count');
+    const themeToggle = document.getElementById('theme-toggle');
+    const clearBtn = document.getElementById('clear-btn');
+    const autosaveCheckbox = document.getElementById('autosave-checkbox');
+    
+    // Theme toggle
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark');
+      // Save theme preference
+      const isDark = document.body.classList.contains('dark');
+      localStorage.setItem('quickNotepadDarkMode', isDark ? 'true' : 'false');
+    }
+    
+    themeToggle.addEventListener('click', toggleDarkMode);
+    
+    // Word count
+    notepad.addEventListener('input', () => {
+      const text = notepad.value.trim();
+      const wordCount = text ? text.split(/\s+/).length : 0;
+      document.querySelector('.word-count').textContent = `${wordCount} word${wordCount !== 1 ? 's' : ''}`;
+      
+      // Auto-save if enabled
+      if (autosaveCheckbox.checked) {
+        localStorage.setItem('quickNotepadContent', notepad.value);
+      }
+    });
+    
+    // Clear button
+    clearBtn.addEventListener('click', clearNotepad);
+    
+    // Auto-save toggle
+    autosaveCheckbox.addEventListener('change', () => {
+      if (autosaveCheckbox.checked) {
+        localStorage.setItem('quickNotepadContent', notepad.value);
+        localStorage.setItem('quickNotepadAutosave', 'true');
+      } else {
+        localStorage.removeItem('quickNotepadContent');
+        localStorage.removeItem('quickNotepadAutosave');
+      }
+    });
+    
+    // Clear function
+    function clearNotepad() {
+      if (notepad.value && confirm('Are you sure you want to clear all content?')) {
+        notepad.value = '';
+        document.querySelector('.word-count').textContent = '0 words';
+        localStorage.removeItem('quickNotepadContent');
+      }
+    }
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      // Ctrl+D or Cmd+D for dark mode toggle
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D')) {
+        e.preventDefault();
+        toggleDarkMode();
+      }
+      
+      // Ctrl+L or Cmd+L for clear (common shortcut for address bar, repurposed)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'l' || e.key === 'L')) {
+        e.preventDefault();
+        clearNotepad();
+      }
+    });
+    
+    // Load saved content and settings on page load
+    window.addEventListener('load', () => {
+      // Load theme preference
+      const savedTheme = localStorage.getItem('quickNotepadDarkMode');
+      if (savedTheme === 'true') {
+        document.body.classList.add('dark');
+      } else if (savedTheme === null && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // If no saved preference, check system preference
+        document.body.classList.add('dark');
+      }
+      
+      // Load autosave setting
+      if (localStorage.getItem('quickNotepadAutosave') === 'true') {
+        autosaveCheckbox.checked = true;
+        
+        // Load saved content if autosave was enabled
+        const savedContent = localStorage.getItem('quickNotepadContent');
+        if (savedContent) {
+          notepad.value = savedContent;
+          const text = notepad.value.trim();
+          const count = text ? text.split(/\s+/).length : 0;
+          document.querySelector('.word-count').textContent = `${count} word${count !== 1 ? 's' : ''}`;
+        }
+      }
+    });
+  </script>
+  
+  <footer class="about-section">
+    <div class="container">
+      <h3>About stashme</h3>
+      <p>stashme is a super-lightweight notepad designed for quick thoughts and temporary writing. It opens instantly in your browser, requires no login, and provides a clean interface for your temporary notes.</p>
+      <p>Features:</p>
+      <ul>
+        <li>Great for brain dumps, reminders, or scratch ideas</li>
+        <li>Includes Dark Mode toggle for comfort</li>
+        <li>Word count display to track your writing</li>
+        <li>Optional auto-save functionality</li>
+        <li>100% private by design - no data is sent to any server</li>
+      </ul>
+      <p>Keyboard shortcuts: Ctrl+D/Cmd+D for dark mode, Ctrl+L/Cmd+L to clear</p>
+      <p class="copyright">© 2023 stashme</p>
+    </div>
+  </footer>
+</body>
+</html>

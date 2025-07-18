@@ -1,0 +1,17 @@
+{
+  "name": "stashme",
+  "short_name": "stashme",
+  "description": "A lightweight in-browser notepad for quick notes with no server storage.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0071e3",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
